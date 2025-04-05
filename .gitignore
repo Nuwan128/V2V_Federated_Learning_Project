@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Data files (optional if data is generated or sensitive)
+data/**/*.csv
+
+# Logs
+logs/
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pytest cache
+.pytest_cache/
+
+# VSCode settings
+.vscode/
+
+# macOS & Linux & Windows system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Docker
+*.pid
+*.pid.lock
+
+# Python packaging
+build/
+dist/
+*.egg-info/

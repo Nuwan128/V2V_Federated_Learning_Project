@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  server:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DOCKERIZED=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./plots:/app/plots
+    networks:
+      - v2v-network
+
+  client_0:
+    build: .
+    command: python src/client.py 0
+    environment:
+      - DOCKERIZED=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - v2v-network
+    depends_on:
+      - server
+
+  client_1:
+    build: .
+    command: python src/client.py 1
+    environment:
+      - DOCKERIZED=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - v2v-network
+    depends_on:
+      - server
+
+  client_2:
+    build: .
+    command: python src/client.py 2
+    environment:
+      - DOCKERIZED=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - v2v-network
+    depends_on:
+      - server
+
+networks:
+  v2v-network:
+    driver: bridge

@@ -83,7 +83,7 @@ class V2VClient(fl.client.NumPyClient):
         self.model.set_weights(parameters)
         
         # Get predictions for debugging
-        y_pred = self.model.predict(self.X_test, verbose=0)
+        y_pred = self.model.predict(self.X_test, verbose=0).flatten()
         y_pred_classes = (y_pred > 0.5).astype(int)
         
         # Calculate metrics manually
@@ -94,7 +94,10 @@ class V2VClient(fl.client.NumPyClient):
 
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
     
-    
+        from utils import plot_confusion_matrix, plot_precision_recall_curve, plot_roc_curve
+        plot_confusion_matrix(self.y_test, y_pred_classes, client_id=self.cid)
+        plot_precision_recall_curve(self.y_test, y_pred, client_id=self.cid)
+        plot_roc_curve(self.y_test, y_pred, client_id=self.cid)
         
         # Log detailed predictions
         self.logger.info(

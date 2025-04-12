@@ -101,11 +101,13 @@ class BlockchainStrategy(fl.server.strategy.FedAvg):
         
         # Store metrics
         self.metrics_history['loss'].append(agg_loss)
-        for metric in ['accuracy', 'precision', 'recall', 'f1']:  # Include F1
+        for metric in ['accuracy', 'precision', 'recall', 'f1']:
             self.metrics_history[metric].append(agg_metrics[metric])
         self.metrics_history['tls'].append(agg_metrics['latency'])
         
         self._generate_plots()
+        self._generate_additional_plots()  # Call the additional plots method
+        
         return agg_loss, agg_metrics
 
     def _generate_plots(self):
@@ -144,6 +146,48 @@ class BlockchainStrategy(fl.server.strategy.FedAvg):
 
         if len(self.metrics_history['accuracy']) == 10:  # After 10 rounds
             self._generate_results_table()
+
+    def _generate_additional_plots(self):
+        """Generate additional visualizations"""
+        from utils import plot_metric_distribution
+        
+        # Plot distribution of metrics across rounds
+        for metric in ['accuracy', 'loss', 'precision', 'recall', 'f1', 'tls']:
+            if self.metrics_history[metric]:
+                plot_metric_distribution(self.metrics_history[metric], metric.capitalize())
+        
+        # Learning Curves Across Rounds
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.metrics_history['accuracy'], label='Accuracy')
+        plt.plot(self.metrics_history['precision'], label='Precision')
+        plt.plot(self.metrics_history['recall'], label='Recall')
+        plt.plot(self.metrics_history['f1'], label='F1 Score')
+        plt.xlabel('Round')
+        plt.ylabel('Metric Value')
+        plt.title('Learning Curves Across Rounds')
+        plt.legend()
+        plt.savefig('plots/learning_curves.png')
+        plt.close()
+        
+        # Latency vs. Accuracy Scatter
+        plt.figure(figsize=(10, 6))
+        plt.scatter(self.metrics_history['tls'], self.metrics_history['accuracy'], c='blue', alpha=0.5)
+        plt.xlabel('Latency (s)')
+        plt.ylabel('Accuracy')
+        plt.title('Latency vs. Accuracy Correlation')
+        plt.savefig('plots/latency_vs_accuracy.png')
+        plt.close()
+        
+        # Blockchain Growth vs. Performance
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.metrics_history['blockchain_rounds'], self.metrics_history['accuracy'], label='Accuracy')
+        plt.plot(self.metrics_history['blockchain_rounds'], self.metrics_history['loss'], label='Loss')
+        plt.xlabel('Blockchain Rounds')
+        plt.ylabel('Metric Value')
+        plt.title('Performance vs. Blockchain Growth')
+        plt.legend()
+        plt.savefig('plots/blockchain_vs_performance.png')
+        plt.close()
 
     def _generate_results_table(self):
         """Generate professional results table as PNG/PDF"""
@@ -196,7 +240,7 @@ class BlockchainStrategy(fl.server.strategy.FedAvg):
         with PdfPages('results/results_table.pdf') as pdf:
             pdf.savefig(fig, bbox_inches='tight')
         plt.close()
-        
+
 def main():
     server_address = "0.0.0.0:8080" if os.getenv("DOCKERIZED") else "localhost:8080"
     strategy = BlockchainStrategy()
